@@ -1,0 +1,52 @@
+<html>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+        <style>
+            #mapid { height: 500px; }
+        </style>    
+    <body>
+            <div id="mapid"></div>
+    </body>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+    crossorigin=""></script>
+    <script>
+        // Intializing the Leaflet Map Object
+        var mymap = L.map('mapid').setView([51.505, -0.09], 1);
+
+        // Adding OpenStreetMap tiles to Leaflet Map Object using tileLayer function
+
+        const attribution = '&copy;<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        const tile_url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tiles = L.tileLayer(tile_url,{attribution});
+        tiles.addTo(mymap);
+
+        // Intializing the marker and adding International Space Station Icon
+
+        var myIcon = L.icon({
+                iconUrl: 'http://icons.iconarchive.com/icons/goodstuff-no-nonsense/free-space/256/international-space-station-icon.png',
+                iconSize: [50,50],
+                iconAnchor: [25, 16],
+            });
+        const marker = L.marker([0,0],{icon:myIcon}).addTo(mymap);
+
+        // Calling the api and rendering the location of international space station inside the map    
+
+        async function call(){
+            const response = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+            const data = await response.json(); 
+            marker.setLatLng([data.latitude,data.longitude]);
+
+            // Adding optional popup on market
+
+            var popup = L.popup()
+            .setLatLng([data.latitude,data.longitude])
+            .setContent('Lat:'+data.latitude+'<br> Lng:'+data.longitude)
+            .openOn(mymap);
+        }
+
+        call();
+        setInterval(call,1000);
+    </script>
+</html>
